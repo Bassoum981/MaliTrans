@@ -1,58 +1,112 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚌 Mali_Trans
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Système Intelligent de Billettique, Vente en Guichet et Suivi Télématique de Flotte de Transport Public au Mali.**
 
-## About Laravel
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-8.4-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+[![License](https://img.shields.io/badge/License-MIT-green.style=for-the-badge)](#license)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📌 À propos du projet
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Dans le cadre de la modernisation des transports publics et de l'acquisition récente d'une flotte de bus par l'État malien, **Mali_Trans** propose une plateforme numérique globale permettant de :
+- Numériser la vente des billets à l'unité sans imposer d'abonnement lourd.
+- Automatiser la billettique physique en guichet avec impression thermique de tickets à QR Code.
+- Offrir aux chauffeurs une application mobile légère pour scanner/valider les titres de transport et émettre la position GPS du véhicule.
+- Fournir aux usagers le suivi du bus en temps réel (*Live Tracking*) via une interface Web responsive.
+- Donner aux gestionnaires un tableau de bord d'administration centralisé pour le suivi financier et l'exploitation de la flotte.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🏗️ Architecture du Système
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Le projet est articulé autour de 4 composants principaux :
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+┌───────────────────────────────────┐
+│     BACKEND API (Laravel 11)      │
+│           Base MySQL 8.4          │
+└─┬──────────────┬──────────────┬───┘
+│              │              │
+┌────────────────┘              │              └────────────────┐
+▼                               ▼                               ▼
+┌────────────────────┐          ┌────────────────────┐          ┌────────────────────┐
+│  APP WEB CLIENT    │          │    APP GUICHET     │          │   APP CHAUFFEUR    │
+│  (Voyageurs / Web) │          │ (Vente / Imprimante)│          │  (Mobile Flutter)  │
+└────────────────────┘          └────────────────────┘          └────────────────────┘
 
-## Agentic Development
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+1. **Application Web Client (Voyageurs) :** Recherche de trajet, achat de billet à l'unité (Mobile Money), génération de QR Code et suivi GPS sur carte.
+2. **Application Guichet (Agents) :** Interface POS rapide pour encaissement en espèces et impression de ticket via protocole ESC/POS.
+3. **Application Mobile Chauffeur :** Sélection du trajet, module de scan caméra pour validation anti-fraude des QR Codes, et émission GPS en arrière-plan.
+4. **Back-Office Administrateur :** Gestion des bus, chauffeurs, lignes, tarifs et reporting financier.
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
-```
+## 🚀 Stack Technologique
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+* **Backend & API :** [Laravel 11](https://laravel.com) (PHP 8.3), [Laravel Sanctum](https://laravel.com/docs/sanctum) (Authentification API)
+* **Base de données :** [MySQL 8.4](https://www.mysql.com)
+* **Temps réel / WebSockets :** [Laravel Reverb](https://laravel.com/docs/reverb) / Pusher
+* **Application Mobile :** [Flutter](https://flutter.dev) (Dart)
+* **Frontend Web :** Laravel Blade, Tailwind CSS, Vue.js / Alpine.js
+* **Cartographie :** Leaflet.js / OpenStreetMap
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🗄️ Schéma de la Base de Données
 
-## Code of Conduct
+```sql
+-- Structure essentielle du SGBD MySQL (Mali_Trans)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+CREATE TABLE buses (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    immatriculation VARCHAR(20) UNIQUE NOT NULL,
+    capacite INT NOT NULL,
+    statut ENUM('EN_SERVICE', 'EN_MAINTENANCE', 'HORS_SERVICE') DEFAULT 'EN_SERVICE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-## Security Vulnerabilities
+CREATE TABLE lignes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    point_depart VARCHAR(100) NOT NULL,
+    point_arrivee VARCHAR(100) NOT NULL,
+    tarif_unitaire DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+CREATE TABLE trajets (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    bus_id BIGINT NOT NULL,
+    chauffeur_id BIGINT NOT NULL,
+    ligne_id BIGINT NOT NULL,
+    heure_depart_prevue DATETIME NOT NULL,
+    heure_depart_reelle DATETIME NULL,
+    heure_arrivee_reelle DATETIME NULL,
+    statut ENUM('PLANIFIE', 'EN_COURS', 'TERMINE', 'ANNULE') DEFAULT 'PLANIFIE',
+    FOREIGN KEY (bus_id) REFERENCES buses(id),
+    FOREIGN KEY (ligne_id) REFERENCES lignes(id)
+);
 
-## License
+CREATE TABLE billets (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code_qr_hash VARCHAR(255) UNIQUE NOT NULL,
+    trajet_id BIGINT NOT NULL,
+    type_vente ENUM('WEB', 'GUICHET') NOT NULL,
+    prix DECIMAL(10, 2) NOT NULL,
+    statut ENUM('PAYE', 'VALIDE', 'ANNULE') DEFAULT 'PAYE',
+    date_validation DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trajet_id) REFERENCES trajets(id)
+);
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+CREATE TABLE positions_gps (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    trajet_id BIGINT NOT NULL,
+    latitude DECIMAL(10, 8) NOT NULL,
+    longitude DECIMAL(11, 8) NOT NULL,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trajet_id) REFERENCES trajets(id)
+);
