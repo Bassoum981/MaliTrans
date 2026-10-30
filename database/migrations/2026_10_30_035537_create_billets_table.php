@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('positions_gps', function (Blueprint $table) {
+        Schema::create('billets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trajet_id')->constrained('trajets');
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 11, 8);
-            $table->timestamp('recorded_at')->useCurrent();
+            $table->string('code_qr_hash')->unique();
+            $table->foreignId('trajet_id')->constrained('trajets')->cascadeOnDelete();
+            $table->enum('type_vente', ['WEB', 'GUICHET']);
+            $table->decimal('prix', 10, 2);
+            $table->enum('statut', ['PAYE', 'VALIDE', 'ANNULE'])->default('PAYE');
+            $table->dateTime('date_validation')->nullable();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('positions_gps');
+        Schema::dropIfExists('billets');
     }
 };

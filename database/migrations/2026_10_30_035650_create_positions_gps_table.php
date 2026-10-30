@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('positions_gps', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('trajet_id')->constrained('trajets')->cascadeOnDelete();
+            $table->decimal('latitude', 10, 8);
+            $table->decimal('longitude', 11, 8);
+            $table->timestamp('recorded_at')->useCurrent();
         });
     }
 
