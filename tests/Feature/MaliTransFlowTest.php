@@ -158,4 +158,45 @@ class MaliTransFlowTest extends TestCase
             ->assertJsonPath('success', true);
     }
 
+    public function test_un_admin_peut_creer_bus_et_ligne_puis_planifier_trajet(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $chauffeur = User::factory()->create(['role' => 'chauffeur']);
+        $tokenAdmin = $admin->createToken('test-token')->plainTextToken;
+
+        // 1. Création d'une ligne par l'admin
+        $responseLigne = $this->withToken($tokenAdmin)->postJson('/api/v1/admin/lignes', [
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Kayes',
+            'prix_base' => 10000,
+            'distance_km' => 500,
+        ]);
+
+        $responseLigne->assertStatus(201)->assertJsonPath('success', true);
+        $ligneId = $responseLigne->json('data.id');
+
+        // 2. Création d'un bus par l'admin
+        $responseBus = $this->withToken($tokenAdmin)->postJson('/api/v1/admin/buses', [
+            'immatriculation' => 'ML-555-MD',
+            'capacite' => 45,
+        ]);
+
+        $responseBus->assertStatus(201)->assertJsonPath('success', true);
+        $busId = $responseBus->json('data.id');
+
+        // 3. Planification du trajet avec ces nouveaux IDs
+        $responseTrajet = $this->withToken($tokenAdmin)->postJson('/api/v1/admin/trajets', [
+            'ligne_id' => $ligneId,
+            'bus_id' => $busId,
+            'chauffeur_id' => $chauffeur->id,
+            'heure_depart_prevue' => now()->addDays(3)->toDateTimeString(),
+            'prix_base' => 10000,
+        ]);
+
+        $responseTrajet->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.statut', 'PLANIFIE');
+    }
+
+
 }
