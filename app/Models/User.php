@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
@@ -29,4 +30,18 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+// En tant que chauffeur pour les trajets
+    public function trajetsConduits(): HasMany
+    {
+        return $this->hasMany(Trajet::class, 'chauffeur_id');
+    }
+
+// En tant que guichetier pour les billets vendus
+    public function billetsVendus(): HasMany
+    {
+        return $this->hasMany(Billet::class, 'vendu_par');
+    }
+
 }
