@@ -100,4 +100,62 @@ class MaliTransFlowTest extends TestCase
 
         $responseDoubleValidation->assertStatus(422);
     }
+
+    public function test_un_admin_peut_creer_un_trajet_puis_cycle_vente_et_validation(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $guichetier = User::factory()->create(['role' => 'guichetier']);
+        $chauffeur = User::factory()->create(['role' => 'chauffeur']);
+
+        $ligne = Ligne::create([
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Mopti',
+            'prix_base' => 12000
+        ]);
+        $bus = Bus::create([
+            'immatriculation' => 'ML-999-MD',
+            'capacite' => 40,
+            'statut' => 'EN_SERVICE'
+        ]);
+
+        // 1. L'admin crée / planifie le trajet
+        $tokenAdmin = $admin->createToken('test-token')->plainTextToken;
+
+        $responseTrajet = $this->withToken($tokenAdmin)->postJson('/api/v1/admin/trajets', [
+            'ligne_id' => $ligne->id,
+            'bus_id' => $bus->id,
+            'chauffeur_id' => $chauffeur->id,
+            'heure_depart_prevue' => now()->addDays(2)->toDateTimeString(),
+            'prix_base' => 12000,
+        ]);
+
+        $responseTrajet->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.statut', 'PLANIFIE');
+
+        $trajetId = $responseTrajet->json('data.id');
+
+        // 2. Le guichetier vend un billet sur ce nouveau trajet
+        $tokenGuichetier = $guichetier->createToken('test-token')->plainTextToken;
+
+        $responseVente = $this->withToken($tokenGuichetier)->postJson("/api/v1/guichet/trajets/{$trajetId}/billets", [
+            'nom_passager' => 'Fatou Diallo',
+            'telephone_passager' => '+22370112233',
+            'numero_siege' => 5,
+        ]);
+
+        $responseVente->assertStatus(201);
+        $qrHash = $responseVente->json('data.code_qr_hash');
+
+        // 3. Le chauffeur valide le billet
+        $tokenChauffeur = $chauffeur->createToken('test-token')->plainTextToken;
+
+        $responseValidation = $this->withToken($tokenChauffeur)->postJson("/api/v1/driver/trajets/{$trajetId}/valider-billet", [
+            'code_qr_hash' => $qrHash,
+        ]);
+
+        $responseValidation->assertStatus(200)
+            ->assertJsonPath('success', true);
+    }
+
 }

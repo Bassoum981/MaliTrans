@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminTrajetController;
 use App\Http\Controllers\Api\GuichetController;
 use App\Http\Controllers\Api\DriverController;
 
@@ -27,6 +28,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // --- SECTION ADMINISTRATION (Réservée aux admins) ---
     Route::prefix('admin')->group(function () {
         Route::post('/users', [AdminController::class, 'storeEmployee']);
+        Route::post('/trajets', [AdminTrajetController::class, 'store']); // <--- Ajout ici
     });
 
     // --- SECTION GUICHET (Web / Guichetier) ---
