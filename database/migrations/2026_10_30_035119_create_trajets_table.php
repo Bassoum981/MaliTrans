@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('trajets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bus_id')->constrained('buses');
-            $table->unsignedBigInteger('chauffeur_id');
-            $table->foreignId('ligne_id')->constrained('lignes');
+            $table->foreignId('bus_id')->constrained('buses')->cascadeOnDelete();
+            $table->foreignId('ligne_id')->constrained('lignes')->cascadeOnDelete();
+            $table->foreignId('chauffeur_id')->constrained('users')->cascadeOnDelete(); // Liaison propre avec les users
             $table->dateTime('heure_depart_prevue');
             $table->dateTime('heure_depart_reelle')->nullable();
             $table->dateTime('heure_arrivee_reelle')->nullable();
             $table->enum('statut', ['PLANIFIE', 'EN_COURS', 'TERMINE', 'ANNULE'])->default('PLANIFIE');
+            $table->timestamps(); // Ajout des timestamps pour le suivi
         });
     }
 

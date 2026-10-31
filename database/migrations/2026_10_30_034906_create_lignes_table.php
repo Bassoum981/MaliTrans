@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('lignes', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('ville_depart');
+            $table->string('ville_arrivee');
+            $table->decimal('distance_km', 8, 2)->nullable(); // Ex: 350.50 km
+            $table->decimal('prix_base', 10, 2);               // Prix indicatif du ticket sur cette ligne
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 
