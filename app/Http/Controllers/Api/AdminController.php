@@ -9,17 +9,22 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    /**
-     * Créer un compte employé (Guichetier ou Chauffeur).
-     */
+    public function indexEmployees(Request $request)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'Accès refusé.'], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => User::whereIn('role', ['admin', 'guichetier', 'chauffeur'])->get(),
+        ]);
+    }
+
     public function storeEmployee(Request $request)
     {
-        // Seul un administrateur authentifié a le droit d'exécuter cette action
         if ($request->user()->role !== 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Accès refusé. Seul un administrateur peut créer un compte employé.',
-            ], 403);
+            return response()->json(['success' => false, 'message' => 'Accès refusé.'], 403);
         }
 
         $validated = $request->validate([
@@ -43,5 +48,23 @@ class AdminController extends Controller
             'message' => 'Compte employé créé avec succès.',
             'data' => $employee,
         ], 201);
+    }
+
+    public function destroyEmployee(Request $request, User $user)
+    {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'Accès refusé.'], 403);
+        }
+
+        if ($user->id === $request->user()->id) {
+            return response()->json(['success' => false, 'message' => 'Impossible de supprimer votre propre compte.'], 422);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Employé supprimé avec succès.',
+        ]);
     }
 }

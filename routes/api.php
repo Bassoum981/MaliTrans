@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AdminBusController;
 use App\Http\Controllers\Api\AdminLigneController;
 use App\Http\Controllers\Api\GuichetController;
 use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\DashboardController;
 
 // ==========================================
 // 1. ROUTES PUBLIQUES (Sans authentification)
@@ -29,11 +30,31 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // --- SECTION ADMINISTRATION (Réservée aux admins) ---
     Route::prefix('admin')->group(function () {
+        Route::get('/stats', [DashboardController::class, 'stats']);
+
+        // Employés
+        Route::get('/users', [AdminController::class, 'indexEmployees']);
         Route::post('/users', [AdminController::class, 'storeEmployee']);
+        Route::delete('/users/{user}', [AdminController::class, 'destroyEmployee']);
+
+        // Bus
+        Route::get('/buses', [AdminBusController::class, 'index']);
+        Route::post('/buses', [AdminBusController::class, 'store']);
+        Route::put('/buses/{bus}', [AdminBusController::class, 'update']);
+        Route::delete('/buses/{bus}', [AdminBusController::class, 'destroy']);
+
+        // Lignes
+        Route::get('/lignes', [AdminLigneController::class, 'index']);
+        Route::post('/lignes', [AdminLigneController::class, 'store']);
+        Route::put('/lignes/{ligne}', [AdminLigneController::class, 'update']);
+        Route::delete('/lignes/{ligne}', [AdminLigneController::class, 'destroy']);
+
+        // Trajets
+        Route::get('/trajets', [AdminTrajetController::class, 'index']);
         Route::post('/trajets', [AdminTrajetController::class, 'store']);
-        Route::post('/buses', [AdminBusController::class, 'store']);     // <--- Ajouté ici
-        Route::post('/lignes', [AdminLigneController::class, 'store']);   // <--- Ajouté ici
+        Route::delete('/trajets/{trajet}', [AdminTrajetController::class, 'destroy']);
     });
+
 
     // --- SECTION GUICHET (Web / Guichetier) ---
     Route::prefix('guichet')->group(function () {
