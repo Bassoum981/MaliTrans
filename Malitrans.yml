@@ -1,0 +1,190 @@
+opencollection: 1.0.0
+info:
+  name: Malitrans
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ''
+      port: ''
+      auth:
+        username: ''
+        password: ''
+      bypassProxy: ''
+  environments:
+    - name: Local
+      variables:
+        - name: baseUrl
+          value: http://127.0.0.1:8000/api/v1
+        - name: token_admin
+          value: 4|xYO18o3OegNXJhsPav0Eff7KEz8Thm3RVe01ZriMab82c08a
+items:
+  - info:
+      name: Connexion au Super Admin
+      type: http
+      seq: 1
+    http:
+      method: POST
+      url: '{{baseUrl}}/auth/login'
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |
+          {
+            "email": "admin@malitrans.ml",
+            "password": "password"
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: Création des Comptes Employés (par le Super Admin)
+      type: http
+      seq: 2
+    http:
+      method: POST
+      url: '{{baseUrl}}/admin/users'
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |
+          {
+            "name": "Aliou Chauffeur",
+            "email": "chauffeur1@malitrans.ml",
+            "telephone": "+2237703898",
+            "password": "password123",
+            "role": "guichetier"
+          }
+      auth:
+        type: bearer
+        token: '{{token_admin}}'
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: ' Connexion à un compte guichet'
+      type: http
+      seq: 3
+    http:
+      method: POST
+      url: '{{baseUrl}}/auth/login'
+      body:
+        type: json
+        data: |
+          {
+            "email": "guichet1@malitrans.ml",
+            "password": "password123"
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: Connexion à un compte chauffer
+      type: http
+      seq: 4
+    http:
+      method: POST
+      url: '{{baseUrl}}/auth/login'
+      body:
+        type: json
+        data: |
+          {
+            "email": "driver1@malitrans.ml",
+            "password": "password123"
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: Creation d'un trajet(Bamako->kayes)
+      type: http
+      seq: 5
+    http:
+      method: POST
+      url: '{{baseUrl}}/admin/trajets'
+      body:
+        type: json
+        data: |
+          {
+            "ligne_id": 1,
+            "bus_id": 1,
+            "chauffeur_id": 3,
+            "heure_depart_prevue": "2026-11-15 08:00:00",
+            "prix_base": 7500
+          }
+      auth:
+        type: bearer
+        token: '{{token_admin}}'
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: Creation d'une ligne
+      type: http
+      seq: 6
+    http:
+      method: POST
+      url: '{{baseUrl}}/admin/lignes'
+      body:
+        type: json
+        data: |
+          {
+            "ville_depart": "Bamako",
+            "ville_arrivee": "Kayes",
+            "prix_base": 10000,
+            "distance_km": 500
+          }
+      auth:
+        type: bearer
+        token: '{{token_admin}}'
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: Creation d'un bus
+      type: http
+      seq: 7
+    http:
+      method: POST
+      url: ''
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+bundled: true
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    exportedAt: '2026-10-31T03:37:09.024Z'
+    exportedUsing: Bruno
