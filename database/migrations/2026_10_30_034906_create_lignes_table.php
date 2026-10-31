@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('ville_depart');
             $table->string('ville_arrivee');
-            $table->decimal('distance_km', 8, 2)->nullable(); // Ex: 350.50 km
-            $table->decimal('prix_base', 10, 2);               // Prix indicatif du ticket sur cette ligne
-            $table->timestamp('created_at')->useCurrent();
+            $table->decimal('distance_km', 8, 2)->nullable();
+            $table->decimal('prix_base', 10, 2);
+            $table->timestamps(); // Ajoute automatiquement created_at et updated_at
         });
     }
 

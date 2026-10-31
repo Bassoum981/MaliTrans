@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PositionGps;
 use App\Models\Trajet;
 use App\Services\TicketService;
-use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Http\Request;
 
 class DriverController extends Controller
 {

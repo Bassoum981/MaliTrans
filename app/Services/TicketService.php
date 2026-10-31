@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Models\Billet;
 use App\Models\Trajet;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TicketService
 {

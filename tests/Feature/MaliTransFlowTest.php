@@ -1,0 +1,103 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use App\Models\Bus;
+use App\Models\Ligne;
+use App\Models\Trajet;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class MaliTransFlowTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_un_guichetier_peut_lister_les_trajets_disponibles(): void
+    {
+        $guichetier = User::factory()->create(['role' => 'guichetier']);
+        $ligne = Ligne::create([
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Sikasso',
+            'prix_base' => 8000
+        ]);
+        $bus = Bus::create([
+            'immatriculation' => 'AB-123-MD',
+            'capacite' => 50,
+            'statut' => 'EN_SERVICE'
+        ]);
+        Trajet::create([
+            'bus_id' => $bus->id,
+            'ligne_id' => $ligne->id,
+            'chauffeur_id' => User::factory()->create(['role' => 'chauffeur'])->id,
+            'heure_depart_prevue' => now()->addDay(),
+            'statut' => 'PLANIFIE'
+        ]);
+
+        // Génération d'un token Sanctum valide pour le test API
+        $token = $guichetier->createToken('test-token')->plainTextToken;
+
+        $response = $this->withToken($token)->getJson('/api/v1/guichet/trajets');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['success', 'data'])
+            ->assertJsonCount(1, 'data');
+    }
+
+    public function test_un_guichetier_peut_emettre_un_billet_et_un_chauffeur_peut_le_valider(): void
+    {
+        $guichetier = User::factory()->create(['role' => 'guichetier']);
+        $chauffeur = User::factory()->create(['role' => 'chauffeur']);
+
+        $ligne = Ligne::create([
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Sikasso',
+            'prix_base' => 8000
+        ]);
+        $bus = Bus::create([
+            'immatriculation' => 'CD-456-MD',
+            'capacite' => 2,
+            'statut' => 'EN_SERVICE'
+        ]);
+        $trajet = Trajet::create([
+            'bus_id' => $bus->id,
+            'ligne_id' => $ligne->id,
+            'chauffeur_id' => $chauffeur->id,
+            'heure_depart_prevue' => now()->addDay(),
+            'statut' => 'PLANIFIE'
+        ]);
+
+        // 1. Émission du billet par le guichetier (via token)
+        $tokenGuichetier = $guichetier->createToken('test-token')->plainTextToken;
+
+        $responseVente = $this->withToken($tokenGuichetier)->postJson("/api/v1/guichet/trajets/{$trajet->id}/billets", [
+            'nom_passager' => 'Moussa Diarra',
+            'telephone_passager' => '+22360000000',
+            'numero_siege' => 1,
+        ]);
+
+        $responseVente->assertStatus(201)
+            ->assertJsonPath('success', true);
+
+        $qrHash = $responseVente->json('data.code_qr_hash');
+        $this->assertNotEmpty($qrHash);
+
+        // 2. Validation du billet par le chauffeur via Scan QR Code (via token)
+        $tokenChauffeur = $chauffeur->createToken('test-token')->plainTextToken;
+
+        $responseValidation = $this->withToken($tokenChauffeur)->postJson("/api/v1/driver/trajets/{$trajet->id}/valider-billet", [
+            'code_qr_hash' => $qrHash,
+        ]);
+
+        $responseValidation->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.statut', 'VALIDE');
+
+        // 3. Tentative de double validation (Doit échouer avec 422)
+        $responseDoubleValidation = $this->withToken($tokenChauffeur)->postJson("/api/v1/driver/trajets/{$trajet->id}/valider-billet", [
+            'code_qr_hash' => $qrHash,
+        ]);
+
+        $responseDoubleValidation->assertStatus(422);
+    }
+}

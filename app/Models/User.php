@@ -1,22 +1,40 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable, HasApiTokens;
+
+    /**
+     * Les attributs qui sont mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'telephone',
+        'role',
+    ];
+
+    /**
+     * Les attributs masqués pour la sérialisation.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -31,17 +49,19 @@ class User extends Authenticatable
         ];
     }
 
-
-// En tant que chauffeur pour les trajets
+    /**
+     * Trajets effectués en tant que chauffeur.
+     */
     public function trajetsConduits(): HasMany
     {
         return $this->hasMany(Trajet::class, 'chauffeur_id');
     }
 
-// En tant que guichetier pour les billets vendus
+    /**
+     * Billets vendus en tant que guichetier.
+     */
     public function billetsVendus(): HasMany
     {
         return $this->hasMany(Billet::class, 'vendu_par');
     }
-
 }

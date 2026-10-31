@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('immatriculation', 20)->unique();
             $table->integer('capacite');
             $table->enum('statut', ['EN_SERVICE', 'EN_MAINTENANCE', 'HORS_SERVICE'])->default('EN_SERVICE');
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
         });
     }
 

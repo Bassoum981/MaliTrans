@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Trajet;
 use App\Services\TicketService;
-use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Http\Request;
 
 class GuichetController extends Controller
 {
