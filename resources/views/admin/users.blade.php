@@ -114,9 +114,16 @@
                 message: '',
                 success: false,
 
+                requestHeaders() {
+                    return {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    };
+                },
+
                 async loadUsers() {                    try {
                         const res = await fetch('/api/v1/admin/users', {
-                            headers: { 'Accept': 'application/json' }
+                            headers: this.requestHeaders()
                         });
                         if (res.ok) {
                             const json = await res.json();
@@ -133,9 +140,7 @@
                     try {
                         const res = await fetch('/api/v1/admin/users', {
                             method: 'POST',
-                            headers: {                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
+                            headers: { ...this.requestHeaders(), 'Content-Type': 'application/json' },
                             body: JSON.stringify(this.form)
                         });
 
@@ -162,7 +167,7 @@
                     if (!confirm('Confirmer la suppression de cet employé ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/users/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Accept': 'application/json' }
+                            headers: this.requestHeaders()
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {

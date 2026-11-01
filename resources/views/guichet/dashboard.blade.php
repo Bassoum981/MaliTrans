@@ -90,6 +90,12 @@
                 message: '',
                 filters: { date: new Date().toISOString().slice(0, 10), search: '' },
                 form: { nom_passager: '', telephone_passager: '', numero_siege: '' },
+                requestHeaders() {
+                    return {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    };
+                },
                 async loadTrips() {
                     this.loading = true;
                     this.message = '';
@@ -123,7 +129,7 @@
                     try {
                         const response = await fetch(`/api/v1/guichet/trajets/${this.selectedTrip.id}/billets`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                            headers: { ...this.requestHeaders(), 'Content-Type': 'application/json' },
                             body: JSON.stringify(this.form),
                         });
                         const data = await response.json();

@@ -109,9 +109,16 @@
                 message: '',
                 success: false,
 
+                requestHeaders() {
+                    return {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    };
+                },
+
                 async loadLignes() {                    try {
                         const res = await fetch('/api/v1/admin/lignes', {
-                            headers: { 'Accept': 'application/json' }
+                            headers: this.requestHeaders()
                         });
                         if (res.ok) {
                             const json = await res.json();
@@ -140,9 +147,7 @@
                     try {
                         const res = await fetch(url, {
                             method: method,
-                            headers: {                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
+                            headers: { ...this.requestHeaders(), 'Content-Type': 'application/json' },
                             body: JSON.stringify(this.form)
                         });
 
@@ -169,7 +174,7 @@
                     if (!confirm('Confirmer la suppression de cette ligne ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/lignes/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Accept': 'application/json' }
+                            headers: this.requestHeaders()
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
