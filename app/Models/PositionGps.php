@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PositionGps extends Model
 {
+    use HasFactory;
+
     protected $table = 'positions_gps';
 
     // Désactiver les timestamps automatiques si seule la colonne 'recorded_at' existe
