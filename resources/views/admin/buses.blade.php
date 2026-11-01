@@ -111,11 +111,9 @@
                 message: '',
                 success: false,
 
-                async loadBuses() {
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                async loadBuses() {                    try {
                         const res = await fetch('/api/v1/admin/buses', {
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         if (res.ok) {
                             const json = await res.json();
@@ -138,17 +136,13 @@
 
                 async saveBus() {
                     this.loading = true;
-                    this.message = '';
-                    const token = localStorage.getItem('token_admin');
-                    const url = this.editMode ? `/api/v1/admin/buses/${this.form.id}` : '/api/v1/admin/buses';
+                    this.message = '';                    const url = this.editMode ? `/api/v1/admin/buses/${this.form.id}` : '/api/v1/admin/buses';
                     const method = this.editMode ? 'PUT' : 'POST';
 
                     try {
                         const res = await fetch(url, {
                             method: method,
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Content-Type': 'application/json',
+                            headers: {                                'Content-Type': 'application/json',
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(this.form)
@@ -174,13 +168,10 @@
                 },
 
                 async deleteBus(id) {
-                    if (!confirm('Confirmer la suppression de ce bus ?')) return;
-
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                    if (!confirm('Confirmer la suppression de ce bus ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/buses/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {

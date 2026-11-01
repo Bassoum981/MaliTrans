@@ -29,7 +29,7 @@ class DriverController extends Controller
             ->orderBy('heure_depart_prevue', 'asc')
             ->first();
 
-        if (!$trajet) {
+        if (! $trajet) {
             return response()->json([
                 'success' => false,
                 'message' => 'Aucun trajet actif assigné pour le moment.',
@@ -47,6 +47,8 @@ class DriverController extends Controller
      */
     public function validateTicket(Request $request, Trajet $trajet)
     {
+        abort_unless($trajet->chauffeur_id === $request->user()->id, 403, 'Ce trajet ne vous est pas assigné.');
+
         $request->validate([
             'code_qr_hash' => 'required|string',
         ]);
@@ -75,9 +77,11 @@ class DriverController extends Controller
      */
     public function updateGpsPosition(Request $request, Trajet $trajet)
     {
+        abort_unless($trajet->chauffeur_id === $request->user()->id, 403, 'Ce trajet ne vous est pas assigné.');
+
         $validated = $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
         $position = PositionGps::create([

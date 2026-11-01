@@ -106,11 +106,9 @@
                 message: '',
                 success: false,
 
-                async loadLignes() {
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                async loadLignes() {                    try {
                         const res = await fetch('/api/v1/admin/lignes', {
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         if (res.ok) {
                             const json = await res.json();
@@ -133,17 +131,13 @@
 
                 async saveLigne() {
                     this.loading = true;
-                    this.message = '';
-                    const token = localStorage.getItem('token_admin');
-                    const url = this.editMode ? `/api/v1/admin/lignes/${this.form.id}` : '/api/v1/admin/lignes';
+                    this.message = '';                    const url = this.editMode ? `/api/v1/admin/lignes/${this.form.id}` : '/api/v1/admin/lignes';
                     const method = this.editMode ? 'PUT' : 'POST';
 
                     try {
                         const res = await fetch(url, {
                             method: method,
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Content-Type': 'application/json',
+                            headers: {                                'Content-Type': 'application/json',
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(this.form)
@@ -169,13 +163,10 @@
                 },
 
                 async deleteLigne(id) {
-                    if (!confirm('Confirmer la suppression de cette ligne ?')) return;
-
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                    if (!confirm('Confirmer la suppression de cette ligne ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/lignes/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {

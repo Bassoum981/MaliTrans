@@ -94,12 +94,12 @@
     </div>
 
     <!-- Footer / Token Status -->
-    <div class="border-t border-slate-800 pt-3 px-2" x-data="{ token: localStorage.getItem('token_admin') }">
+    <div class="border-t border-slate-800 pt-3 px-2">
         <div class="flex items-center justify-between mb-2">
             <span class="text-[11px] text-slate-500 font-medium">Session Administrateur</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
         </div>
-        <button @click="localStorage.removeItem('token_admin'); window.location.href='/login'"
+        <button @click="window.location.href='{{ route('logout') }}'"
                 class="flex items-center space-x-2 w-full text-left text-xs text-slate-400 hover:text-slate-200 transition-colors py-1">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12" />

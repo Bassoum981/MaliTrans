@@ -53,11 +53,9 @@
         function dashboardAdmin() {
             return {
                 stats: { buses_count: 0, lignes_count: 0, drivers_count: 0, trajets_count: 0 },
-                async loadStats() {
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                async loadStats() {                    try {
                         const res = await fetch('/api/v1/admin/stats', {
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         if (res.ok) {
                             const json = await res.json();
