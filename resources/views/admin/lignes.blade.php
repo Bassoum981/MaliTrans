@@ -1,11 +1,14 @@
 @extends('layouts.admin')
 
+@section('title', 'MaliTrans — Lignes & tarifs')
+@section('page_label', 'Lignes & tarifs')
+
 @section('content')
-    <div x-data="ligneManager()" x-init="loadLignes()" class="space-y-6">
+    <div x-data="ligneManager()" x-init="loadLignes()" class="space-y-8">
 
         <div>
-            <h2 class="text-lg font-semibold text-white tracking-tight">Lignes interurbaines</h2>
-            <p class="text-slate-500 text-xs mt-0.5">Configuration et gestion des itinéraires</p>
+            <h1 class="text-3xl font-black tracking-[-.04em] text-white">Lignes interurbaines</h1>
+            <p class="mt-2 text-sm text-slate-500">Configuration et gestion des itinéraires.</p>
         </div>
 
         <template x-if="message">
@@ -14,7 +17,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Formulaire Dynamique -->
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-md h-fit">
+            <div class="h-fit rounded-2xl border border-line bg-panel p-6 shadow-panel">
                 <h3 class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4" x-text="editMode ? 'Modifier la ligne' : 'Nouvelle ligne'"></h3>
                 <form @submit.prevent="saveLigne" class="space-y-4">
                     <div class="grid grid-cols-2 gap-3">
@@ -57,7 +60,7 @@
             </div>
 
             <!-- Tableau des lignes -->
-            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-md overflow-hidden">
+            <div class="overflow-hidden rounded-2xl border border-line bg-panel shadow-panel lg:col-span-2">
                 <div class="p-4 border-b border-slate-800">
                     <h3 class="text-xs font-medium text-slate-400 uppercase tracking-wider">Itinéraires configurés</h3>
                 </div>

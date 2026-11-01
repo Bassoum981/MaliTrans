@@ -94,4 +94,34 @@ class AuthWorkflowTest extends TestCase
         $response->assertStatus(403)
             ->assertJsonPath('success', false);
     }
+
+    public function test_un_guichetier_est_redirige_vers_son_espace_de_vente(): void
+    {
+        $guichetier = User::factory()->create([
+            'email' => 'guichet@malitrans.ml',
+            'password' => Hash::make('password123'),
+            'role' => 'guichetier',
+        ]);
+
+        $response = $this->postJson('/login', [
+            'email' => $guichetier->email,
+            'password' => 'password123',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('redirect', route('guichet.dashboard'));
+
+        $this->assertAuthenticatedAs($guichetier);
+        $this->get(route('guichet.dashboard'))->assertOk();
+    }
+
+    public function test_une_session_guichetier_peut_utiliser_l_api_de_vente(): void
+    {
+        $guichetier = User::factory()->create(['role' => 'guichetier']);
+
+        $this->actingAs($guichetier)
+            ->getJson('/api/v1/guichet/trajets')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+    }
 }

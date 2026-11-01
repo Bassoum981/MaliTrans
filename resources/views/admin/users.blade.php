@@ -1,11 +1,14 @@
 @extends('layouts.admin')
 
+@section('title', 'MaliTrans — Personnel')
+@section('page_label', 'Personnel')
+
 @section('content')
-    <div x-data="userManager()" x-init="loadUsers()" class="space-y-6">
+    <div x-data="userManager()" x-init="loadUsers()" class="space-y-8">
 
         <div>
-            <h2 class="text-lg font-semibold text-white tracking-tight">Gestion des employés</h2>
-            <p class="text-slate-500 text-xs mt-0.5">Création et consultation des comptes du personnel</p>
+            <h1 class="text-3xl font-black tracking-[-.04em] text-white">Gestion des employés</h1>
+            <p class="mt-2 text-sm text-slate-500">Création et consultation des comptes du personnel.</p>
         </div>
 
         <template x-if="message">
@@ -14,7 +17,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Formulaire de création -->
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-md h-fit">
+            <div class="h-fit rounded-2xl border border-line bg-panel p-6 shadow-panel">
                 <h3 class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">Nouveau compte</h3>
                 <form @submit.prevent="createUser" class="space-y-4">
                     <div>
@@ -60,7 +63,7 @@
             </div>
 
             <!-- Tableau des employés -->
-            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-md overflow-hidden">
+            <div class="overflow-hidden rounded-2xl border border-line bg-panel shadow-panel lg:col-span-2">
                 <div class="p-4 border-b border-slate-800">
                     <h3 class="text-xs font-medium text-slate-400 uppercase tracking-wider">Personnel enregistré</h3>
                 </div>
