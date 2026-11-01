@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Tests\TestCase;
 
 class AuthWorkflowTest extends TestCase
@@ -143,6 +144,24 @@ class AuthWorkflowTest extends TestCase
             'email' => 'session.guichet@malitrans.ml',
             'role' => 'guichetier',
         ]);
+    }
+
+    public function test_la_creation_depuis_la_session_web_ne_depend_pas_du_domaine_stateful_de_sanctum(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->withoutMiddleware(EnsureFrontendRequestsAreStateful::class)
+            ->actingAs($admin)
+            ->postJson('/api/v1/admin/users', [
+                'name' => 'Guichet Domaine',
+                'email' => 'domaine.guichet@malitrans.ml',
+                'telephone' => '+22360000004',
+                'password' => 'password123',
+                'role' => 'guichetier',
+            ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('users', ['email' => 'domaine.guichet@malitrans.ml']);
     }
 
     public function test_une_session_guichetier_peut_utiliser_l_api_de_vente(): void
