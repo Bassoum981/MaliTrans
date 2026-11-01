@@ -123,6 +123,7 @@
 
                 async loadUsers() {                    try {
                         const res = await fetch('/api/v1/admin/users', {
+                            credentials: 'same-origin',
                             headers: this.requestHeaders()
                         });
                         if (res.ok) {
@@ -140,6 +141,7 @@
                     try {
                         const res = await fetch('/api/v1/admin/users', {
                             method: 'POST',
+                            credentials: 'same-origin',
                             headers: { ...this.requestHeaders(), 'Content-Type': 'application/json' },
                             body: JSON.stringify(this.form)
                         });
@@ -167,6 +169,7 @@
                     if (!confirm('Confirmer la suppression de cet employé ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/users/${id}`, {
                             method: 'DELETE',
+                            credentials: 'same-origin',
                             headers: this.requestHeaders()
                         });
                         const data = await res.json();

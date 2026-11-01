@@ -27,7 +27,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // --- SECTION ADMINISTRATION (Réservée aux admins) ---
-    Route::prefix('admin')->middleware('role:admin')->group(function () {
+    Route::prefix('admin')->middleware(['web', 'role:admin'])->group(function () {
         Route::get('/stats', [DashboardController::class, 'stats']);
 
         // Employés
@@ -54,7 +54,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     });
 
     // --- SECTION GUICHET (Web / Guichetier) ---
-    Route::prefix('guichet')->middleware('role:guichetier')->group(function () {
+    Route::prefix('guichet')->middleware(['web', 'role:guichetier'])->group(function () {
         Route::get('/trajets', [GuichetController::class, 'index']);
         Route::post('/trajets/{trajet}/billets', [GuichetController::class, 'emettreBillet']);
     });
