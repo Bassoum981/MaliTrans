@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>MaliTrans — Connexion</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -47,7 +48,7 @@
     <form @submit.prevent="login" class="space-y-4">
         <div>
             <label class="block text-xs font-medium text-slate-300 mb-1">Adresse Email</label>
-            <input type="email5" x-model="form.email" placeholder="ex: admin@malitrans.ml" required
+            <input type="email" x-model="form.email" placeholder="ex: admin@malitrans.ml" required
                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
         </div>
 
@@ -64,12 +65,6 @@
         </button>
     </form>
 
-    <!-- Aide aux identifiants (Pratique pour tester) -->
-    <div class="mt-8 pt-4 border-t border-slate-700/60 text-xs text-slate-400 space-y-1">
-        <p class="font-semibold text-slate-300">Comptes de test par défaut :</p>
-        <p>👑 Admin : <code class="text-blue-400">admin@malitrans.ml</code> / <code class="text-slate-200">AdminSecurePassword2026!</code></p>
-        <p>🎫 Guichet : <code class="text-blue-400">guichet@malitrans.ml</code> / <code class="text-slate-200">password123</code></p>
-    </div>
 </div>
 
 <script>
@@ -87,38 +82,24 @@
                 this.errorMessage = '';
 
                 try {
-                    const response = await fetch('/api/v1/auth/login', {
+                    const response = await fetch('/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json'
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
                         body: JSON.stringify(this.form)
                     });
 
                     const data = await response.json();
 
-                    // 🔍 Ouvre F12 > Console pour voir exactement ce que ton API renvoie
-                    console.log("Réponse brute de l'API :", data);
-
-                    // Récupération souple du token et de l'utilisateur (selon ton format de retour)
-                    const token = data.token || (data.data && data.data.token);
-                    const user = data.user || (data.data && data.data.user);
-
-                    if (response.ok && token) {
-                        // On harmonise la clé pour qu'elle soit lue partout facilement
-                        localStorage.setItem('token_admin', token);
-                        if (user && user.role) {
-                            localStorage.setItem('user_role', user.role);
-                        }
-
-                        // Redirection forcée vers la page des bus admin
-                        window.location.href = '/admin/buses';
+                    if (response.ok && data.success) {
+                        window.location.href = data.redirect;
                     } else {
-                        this.errorMessage = data.message || 'Connexion réussie mais token introuvable dans la réponse.';
+                        this.errorMessage = data.message || 'Identifiants invalides.';
                     }
                 } catch (err) {
-                    console.error("Erreur catch :", err);
                     this.errorMessage = 'Erreur de connexion au serveur.';
                 } finally {
                     this.loading = false;

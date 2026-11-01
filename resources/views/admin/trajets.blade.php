@@ -57,12 +57,6 @@
                                class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-slate-600">
                     </div>
 
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-400 uppercase tracking-wider mb-1">Prix personnalisé (FCFA)</label>
-                        <input type="number" x-model="form.prix_base" placeholder="Laisser vide pour le tarif de base"
-                               class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-slate-600">
-                    </div>
-
                     <button type="submit" :disabled="loading"
                             class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 rounded text-xs transition-colors border border-slate-700 disabled:opacity-50">
                         <span x-show="!loading">Planifier le trajet</span>
@@ -95,7 +89,7 @@
                                 <td class="p-3 text-slate-400" x-text="trajet.bus ? trajet.bus.immatriculation : 'N/A'"></td>
                                 <td class="p-3 text-slate-400" x-text="trajet.chauffeur ? trajet.chauffeur.name : 'N/A'"></td>
                                 <td class="p-3 font-mono text-slate-400" x-text="trajet.heure_depart_prevue"></td>
-                                <td class="p-3 text-emerald-400" x-text="trajet.prix_base + ' FCFA'"></td>
+                                <td class="p-3 text-emerald-400" x-text="trajet.ligne ? trajet.ligne.prix_base + ' FCFA' : 'N/A'"></td>
                                 <td class="p-3 text-right">
                                     <button @click="deleteTrajet(trajet.id)" class="text-red-400 hover:text-red-300 transition-colors">Supprimer</button>
                                 </td>
@@ -121,14 +115,12 @@
                 buses: [],
                 drivers: [],
                 trajets: [],
-                form: { ligne_id: '', bus_id: '', chauffeur_id: '', heure_depart_prevue: '', prix_base: '' },
+                form: { ligne_id: '', bus_id: '', chauffeur_id: '', heure_depart_prevue: '' },
                 loading: false,
                 message: '',
                 success: false,
 
-                async initData() {
-                    const token = localStorage.getItem('token_admin');
-                    const headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' };
+                async initData() {                    const headers = { 'Accept': 'application/json' };
 
                     try {
                         const [lignesRes, busesRes, usersRes, trajetsRes] = await Promise.all([
@@ -163,14 +155,10 @@
                 async createTrajet() {
                     this.loading = true;
                     this.message = '';
-                    const token = localStorage.getItem('token_admin');
-
                     try {
                         const res = await fetch('/api/v1/admin/trajets', {
                             method: 'POST',
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Content-Type': 'application/json',
+                            headers: {                                'Content-Type': 'application/json',
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(this.form)
@@ -181,7 +169,7 @@
                         if (res.ok && data.success) {
                             this.success = true;
                             this.message = 'Trajet planifié avec succès.';
-                            this.form = { ligne_id: '', bus_id: '', chauffeur_id: '', heure_depart_prevue: '', prix_base: '' };
+                            this.form = { ligne_id: '', bus_id: '', chauffeur_id: '', heure_depart_prevue: '' };
                             this.initData();
                         } else {
                             this.success = false;
@@ -196,13 +184,10 @@
                 },
 
                 async deleteTrajet(id) {
-                    if (!confirm('Confirmer la suppression de ce trajet ?')) return;
-
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                    if (!confirm('Confirmer la suppression de ce trajet ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/trajets/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {

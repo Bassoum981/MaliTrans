@@ -1,15 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\AdminController;
-use App\Http\Controllers\Api\AdminTrajetController;
 use App\Http\Controllers\Api\AdminBusController;
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AdminLigneController;
-use App\Http\Controllers\Api\GuichetController;
-use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\AdminTrajetController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\GuichetController;
+use Illuminate\Support\Facades\Route;
 
 // ==========================================
 // 1. ROUTES PUBLIQUES (Sans authentification)
@@ -17,7 +16,6 @@ use App\Http\Controllers\Api\DashboardController;
 Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
 });
-
 
 // ==========================================
 // 2. ROUTES PROTÉGÉES (Par Sanctum)
@@ -29,7 +27,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // --- SECTION ADMINISTRATION (Réservée aux admins) ---
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware('role:admin')->group(function () {
         Route::get('/stats', [DashboardController::class, 'stats']);
 
         // Employés
@@ -55,15 +53,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::delete('/trajets/{trajet}', [AdminTrajetController::class, 'destroy']);
     });
 
-
     // --- SECTION GUICHET (Web / Guichetier) ---
-    Route::prefix('guichet')->group(function () {
+    Route::prefix('guichet')->middleware('role:guichetier')->group(function () {
         Route::get('/trajets', [GuichetController::class, 'index']);
         Route::post('/trajets/{trajet}/billets', [GuichetController::class, 'emettreBillet']);
     });
 
     // --- SECTION CHAUFFEUR (Application Mobile Flutter) ---
-    Route::prefix('driver')->group(function () {
+    Route::prefix('driver')->middleware('role:chauffeur')->group(function () {
         Route::get('/trajet-actif', [DriverController::class, 'activeTrip']);
         Route::post('/trajets/{trajet}/valider-billet', [DriverController::class, 'validateTicket']);
         Route::post('/trajets/{trajet}/gps', [DriverController::class, 'updateGpsPosition']);

@@ -111,11 +111,9 @@
                 message: '',
                 success: false,
 
-                async loadUsers() {
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                async loadUsers() {                    try {
                         const res = await fetch('/api/v1/admin/users', {
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         if (res.ok) {
                             const json = await res.json();
@@ -129,14 +127,10 @@
                 async createUser() {
                     this.loading = true;
                     this.message = '';
-                    const token = localStorage.getItem('token_admin');
-
                     try {
                         const res = await fetch('/api/v1/admin/users', {
                             method: 'POST',
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Content-Type': 'application/json',
+                            headers: {                                'Content-Type': 'application/json',
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify(this.form)
@@ -162,13 +156,10 @@
                 },
 
                 async deleteUser(id) {
-                    if (!confirm('Confirmer la suppression de cet employé ?')) return;
-
-                    const token = localStorage.getItem('token_admin');
-                    try {
+                    if (!confirm('Confirmer la suppression de cet employé ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/users/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+                            headers: { 'Accept': 'application/json' }
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {

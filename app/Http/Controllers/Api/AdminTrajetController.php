@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Trajet;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminTrajetController extends Controller
@@ -35,11 +36,10 @@ class AdminTrajetController extends Controller
             'bus_id' => 'required|exists:buses,id',
             'chauffeur_id' => 'required|exists:users,id',
             'heure_depart_prevue' => 'required|date|after:now',
-            'prix_base' => 'required|numeric|min:0',
         ]);
 
-        $chauffeur = \App\Models\User::find($validated['chauffeur_id']);
-        if (!$chauffeur || $chauffeur->role !== 'chauffeur') {
+        $chauffeur = User::find($validated['chauffeur_id']);
+        if (! $chauffeur || $chauffeur->role !== 'chauffeur') {
             return response()->json([
                 'success' => false,
                 'message' => 'L utilisateur sélectionné doit obligatoirement avoir le rôle chauffeur.',
@@ -51,7 +51,6 @@ class AdminTrajetController extends Controller
             'bus_id' => $validated['bus_id'],
             'chauffeur_id' => $validated['chauffeur_id'],
             'heure_depart_prevue' => $validated['heure_depart_prevue'],
-            'prix_base' => $validated['prix_base'],
             'statut' => 'PLANIFIE',
         ]);
 

@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Bus;
 use App\Models\Ligne;
 use App\Models\Trajet;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,19 +19,19 @@ class MaliTransFlowTest extends TestCase
         $ligne = Ligne::create([
             'ville_depart' => 'Bamako',
             'ville_arrivee' => 'Sikasso',
-            'prix_base' => 8000
+            'prix_base' => 8000,
         ]);
         $bus = Bus::create([
             'immatriculation' => 'AB-123-MD',
             'capacite' => 50,
-            'statut' => 'EN_SERVICE'
+            'statut' => 'EN_SERVICE',
         ]);
         Trajet::create([
             'bus_id' => $bus->id,
             'ligne_id' => $ligne->id,
             'chauffeur_id' => User::factory()->create(['role' => 'chauffeur'])->id,
             'heure_depart_prevue' => now()->addDay(),
-            'statut' => 'PLANIFIE'
+            'statut' => 'PLANIFIE',
         ]);
 
         // Génération d'un token Sanctum valide pour le test API
@@ -52,19 +52,19 @@ class MaliTransFlowTest extends TestCase
         $ligne = Ligne::create([
             'ville_depart' => 'Bamako',
             'ville_arrivee' => 'Sikasso',
-            'prix_base' => 8000
+            'prix_base' => 8000,
         ]);
         $bus = Bus::create([
             'immatriculation' => 'CD-456-MD',
             'capacite' => 2,
-            'statut' => 'EN_SERVICE'
+            'statut' => 'EN_SERVICE',
         ]);
         $trajet = Trajet::create([
             'bus_id' => $bus->id,
             'ligne_id' => $ligne->id,
             'chauffeur_id' => $chauffeur->id,
             'heure_depart_prevue' => now()->addDay(),
-            'statut' => 'PLANIFIE'
+            'statut' => 'PLANIFIE',
         ]);
 
         // 1. Émission du billet par le guichetier (via token)
@@ -83,6 +83,8 @@ class MaliTransFlowTest extends TestCase
         $this->assertNotEmpty($qrHash);
 
         // 2. Validation du billet par le chauffeur via Scan QR Code (via token)
+        $this->flushHeaders();
+        $this->app['auth']->forgetGuards();
         $tokenChauffeur = $chauffeur->createToken('test-token')->plainTextToken;
 
         $responseValidation = $this->withToken($tokenChauffeur)->postJson("/api/v1/driver/trajets/{$trajet->id}/valider-billet", [
@@ -110,12 +112,12 @@ class MaliTransFlowTest extends TestCase
         $ligne = Ligne::create([
             'ville_depart' => 'Bamako',
             'ville_arrivee' => 'Mopti',
-            'prix_base' => 12000
+            'prix_base' => 12000,
         ]);
         $bus = Bus::create([
             'immatriculation' => 'ML-999-MD',
             'capacite' => 40,
-            'statut' => 'EN_SERVICE'
+            'statut' => 'EN_SERVICE',
         ]);
 
         // 1. L'admin crée / planifie le trajet
@@ -136,6 +138,8 @@ class MaliTransFlowTest extends TestCase
         $trajetId = $responseTrajet->json('data.id');
 
         // 2. Le guichetier vend un billet sur ce nouveau trajet
+        $this->flushHeaders();
+        $this->app['auth']->forgetGuards();
         $tokenGuichetier = $guichetier->createToken('test-token')->plainTextToken;
 
         $responseVente = $this->withToken($tokenGuichetier)->postJson("/api/v1/guichet/trajets/{$trajetId}/billets", [
@@ -148,6 +152,8 @@ class MaliTransFlowTest extends TestCase
         $qrHash = $responseVente->json('data.code_qr_hash');
 
         // 3. Le chauffeur valide le billet
+        $this->flushHeaders();
+        $this->app['auth']->forgetGuards();
         $tokenChauffeur = $chauffeur->createToken('test-token')->plainTextToken;
 
         $responseValidation = $this->withToken($tokenChauffeur)->postJson("/api/v1/driver/trajets/{$trajetId}/valider-billet", [
@@ -198,5 +204,86 @@ class MaliTransFlowTest extends TestCase
             ->assertJsonPath('data.statut', 'PLANIFIE');
     }
 
+    public function test_un_utilisateur_ne_peut_pas_utiliser_une_fonction_d_un_autre_role(): void
+    {
+        $chauffeur = User::factory()->create(['role' => 'chauffeur']);
+        $token = $chauffeur->createToken('test-token')->plainTextToken;
 
+        $this->withToken($token)
+            ->getJson('/api/v1/admin/buses')
+            ->assertForbidden()
+            ->assertJsonPath('success', false);
+
+        $this->withToken($token)
+            ->getJson('/api/v1/guichet/trajets')
+            ->assertForbidden()
+            ->assertJsonPath('success', false);
+    }
+
+    public function test_un_chauffeur_ne_peut_pas_modifier_un_trajet_qui_ne_lui_est_pas_assigne(): void
+    {
+        $chauffeur = User::factory()->create(['role' => 'chauffeur']);
+        $autreChauffeur = User::factory()->create(['role' => 'chauffeur']);
+        $ligne = Ligne::create([
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Sikasso',
+            'prix_base' => 8000,
+        ]);
+        $bus = Bus::create([
+            'immatriculation' => 'AT-789-MD',
+            'capacite' => 40,
+            'statut' => 'EN_SERVICE',
+        ]);
+        $trajet = Trajet::create([
+            'bus_id' => $bus->id,
+            'ligne_id' => $ligne->id,
+            'chauffeur_id' => $autreChauffeur->id,
+            'heure_depart_prevue' => now()->addDay(),
+            'statut' => 'PLANIFIE',
+        ]);
+        $token = $chauffeur->createToken('test-token')->plainTextToken;
+
+        $this->withToken($token)
+            ->postJson("/api/v1/driver/trajets/{$trajet->id}/gps", [
+                'latitude' => 12.63,
+                'longitude' => -8.0,
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_un_siege_ne_peut_pas_etre_vendu_deux_fois(): void
+    {
+        $guichetier = User::factory()->create(['role' => 'guichetier']);
+        $ligne = Ligne::create([
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Mopti',
+            'prix_base' => 12000,
+        ]);
+        $bus = Bus::create([
+            'immatriculation' => 'SE-111-MD',
+            'capacite' => 2,
+            'statut' => 'EN_SERVICE',
+        ]);
+        $trajet = Trajet::create([
+            'bus_id' => $bus->id,
+            'ligne_id' => $ligne->id,
+            'chauffeur_id' => User::factory()->create(['role' => 'chauffeur'])->id,
+            'heure_depart_prevue' => now()->addDay(),
+            'statut' => 'PLANIFIE',
+        ]);
+        $token = $guichetier->createToken('test-token')->plainTextToken;
+        $payload = [
+            'nom_passager' => 'Adama Traore',
+            'numero_siege' => 1,
+        ];
+
+        $this->withToken($token)
+            ->postJson("/api/v1/guichet/trajets/{$trajet->id}/billets", $payload)
+            ->assertCreated();
+
+        $this->withToken($token)
+            ->postJson("/api/v1/guichet/trajets/{$trajet->id}/billets", $payload)
+            ->assertStatus(400)
+            ->assertJsonPath('success', false);
+    }
 }
