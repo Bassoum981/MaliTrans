@@ -25,19 +25,23 @@ Route::post('/login', function (Request $request) {
         ], 422);
     }
 
-    if ($request->user()->role !== 'admin') {
+    if (! in_array($request->user()->role, ['admin', 'guichetier'], true)) {
         Auth::logout();
 
         return response()->json([
-            'message' => 'Cette interface est réservée aux administrateurs.',
+            'message' => 'Ce compte ne possède pas accès à une interface web.',
         ], 403);
     }
 
     $request->session()->regenerate();
 
+    $redirect = $request->user()->role === 'admin'
+        ? route('admin.dashboard')
+        : route('guichet.dashboard');
+
     return response()->json([
         'success' => true,
-        'redirect' => route('admin.dashboard'),
+        'redirect' => $redirect,
     ]);
 })->name('login.authenticate');
 
@@ -57,4 +61,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::view('/lignes', 'admin.lignes')->name('admin.lignes');
     Route::view('/trajets', 'admin.trajets')->name('admin.trajets');
     Route::view('/users', 'admin.users')->name('admin.users');
+});
+
+Route::prefix('guichet')->middleware(['auth', 'role:guichetier'])->group(function () {
+    Route::view('/', 'guichet.dashboard')->name('guichet.dashboard');
 });
