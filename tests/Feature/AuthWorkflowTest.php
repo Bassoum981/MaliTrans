@@ -115,6 +115,36 @@ class AuthWorkflowTest extends TestCase
         $this->get(route('guichet.dashboard'))->assertOk();
     }
 
+    public function test_un_administrateur_connecte_par_session_peut_creer_un_compte_guichetier(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@malitrans.ml',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+        ]);
+
+        $this->postJson('/login', [
+            'email' => $admin->email,
+            'password' => 'password123',
+        ])->assertOk();
+
+        $response = $this->postJson('/api/v1/admin/users', [
+            'name' => 'Guichet Session',
+            'email' => 'session.guichet@malitrans.ml',
+            'telephone' => '+22360000003',
+            'password' => 'password123',
+            'role' => 'guichetier',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'session.guichet@malitrans.ml',
+            'role' => 'guichetier',
+        ]);
+    }
+
     public function test_une_session_guichetier_peut_utiliser_l_api_de_vente(): void
     {
         $guichetier = User::factory()->create(['role' => 'guichetier']);

@@ -123,6 +123,13 @@
                 message: '',
                 success: false,
 
+                requestHeaders() {
+                    return {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    };
+                },
+
                 async initData() {                    const headers = { 'Accept': 'application/json' };
 
                     try {
@@ -161,9 +168,7 @@
                     try {
                         const res = await fetch('/api/v1/admin/trajets', {
                             method: 'POST',
-                            headers: {                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
+                            headers: { ...this.requestHeaders(), 'Content-Type': 'application/json' },
                             body: JSON.stringify(this.form)
                         });
 
@@ -190,7 +195,7 @@
                     if (!confirm('Confirmer la suppression de ce trajet ?')) return;                    try {
                         const res = await fetch(`/api/v1/admin/trajets/${id}`, {
                             method: 'DELETE',
-                            headers: { 'Accept': 'application/json' }
+                            headers: this.requestHeaders()
                         });
                         const data = await res.json();
                         if (res.ok && data.success) {
