@@ -167,6 +167,37 @@ class MaliTransFlowTest extends TestCase
             ->assertJsonPath('success', true);
     }
 
+    public function test_un_chauffeur_connecte_recupere_son_trajet_actif(): void
+    {
+        $chauffeur = User::factory()->create(['role' => 'chauffeur']);
+        $ligne = Ligne::create([
+            'ville_depart' => 'Bamako',
+            'ville_arrivee' => 'Kayes',
+            'prix_base' => 10000,
+        ]);
+        $bus = Bus::create([
+            'immatriculation' => 'ML-777-MD',
+            'capacite' => 45,
+            'statut' => 'EN_SERVICE',
+        ]);
+        $trajet = Trajet::create([
+            'bus_id' => $bus->id,
+            'ligne_id' => $ligne->id,
+            'chauffeur_id' => $chauffeur->id,
+            'heure_depart_prevue' => now()->addDay(),
+            'statut' => 'PLANIFIE',
+        ]);
+        $token = $chauffeur->createToken('test-token')->plainTextToken;
+
+        $response = $this->withToken($token)->getJson('/api/v1/driver/trajet-actif');
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.id', $trajet->id)
+            ->assertJsonPath('data.chauffeur_id', $chauffeur->id)
+            ->assertJsonPath('data.statut', 'PLANIFIE');
+    }
+
     public function test_un_admin_peut_creer_bus_et_ligne_puis_planifier_trajet(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
