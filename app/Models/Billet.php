@@ -28,6 +28,15 @@ class Billet extends Model
         'prix' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'date_paiement',
+    ];
+
+    public function getDatePaiementAttribute(): ?string
+    {
+        return $this->created_at?->toIso8601String();
+    }
+
     public function trajet(): BelongsTo
     {
         return $this->belongsTo(Trajet::class);

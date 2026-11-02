@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\NormalizeLocalHost;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Tests\TestCase;
@@ -127,6 +130,20 @@ class AuthWorkflowTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('redirect', route('admin.dashboard', [], false));
+    }
+
+    public function test_un_hote_local_non_canonique_est_redirige_vers_app_url(): void
+    {
+        Config::set('app.env', 'local');
+        Config::set('app.url', 'http://127.0.0.1:8000');
+
+        $response = (new NormalizeLocalHost)->handle(
+            Request::create('http://localhost:8000/login'),
+            fn () => response()->noContent(),
+        );
+
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('http://127.0.0.1:8000/login', $response->headers->get('Location'));
     }
 
     public function test_un_administrateur_connecte_par_session_peut_creer_un_compte_guichetier(): void

@@ -10,6 +10,23 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
+        (() => {
+            const theme = localStorage.getItem('malitrans-theme') || 'dark';
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+            document.documentElement.classList.toggle('light', theme === 'light');
+        })();
+    </script>
+    <style>
+        html.light body { background: #f4f7fb; color: #10253d; }
+        html.light .bg-slate-900 { background-color: #eaf0f6 !important; }
+        html.light .bg-slate-800 { background-color: #ffffff !important; }
+        html.light .border-slate-700 { border-color: #d7e1eb !important; }
+        html.light .text-slate-100,
+        html.light .text-white { color: #10253d !important; }
+        html.light .text-slate-300 { color: #3e5064 !important; }
+        html.light .text-slate-400 { color: #6a7b8d !important; }
+    </style>
+    <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -29,6 +46,16 @@
 <body class="bg-slate-900 text-slate-100 font-sans antialiased flex items-center justify-center min-h-screen">
 
 <div class="w-full max-w-md p-6 bg-slate-800 rounded-2xl border border-slate-700 shadow-xl" x-data="loginApp()">
+    <div class="mb-5 flex justify-end">
+        <button
+            type="button"
+            @click="toggleTheme()"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-sm text-slate-300 transition hover:border-blue-500 hover:text-blue-500"
+            :aria-label="theme === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre'"
+        >
+            <span x-text="theme === 'dark' ? '☼' : '☾'"></span>
+        </button>
+    </div>
 
     <!-- En-tête -->
     <div class="text-center mb-8">
@@ -76,6 +103,14 @@
             },
             loading: false,
             errorMessage: '',
+            theme: localStorage.getItem('malitrans-theme') || 'dark',
+
+            toggleTheme() {
+                this.theme = this.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('malitrans-theme', this.theme);
+                document.documentElement.classList.toggle('dark', this.theme === 'dark');
+                document.documentElement.classList.toggle('light', this.theme === 'light');
+            },
 
             async login() {
                 this.loading = true;
@@ -89,6 +124,7 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
+                        credentials: 'include', // <--- Indispensable pour garder la session active
                         body: JSON.stringify(this.form)
                     });
 
@@ -107,7 +143,6 @@
             }
         }
     }
-
 </script>
 </body>
 </html>

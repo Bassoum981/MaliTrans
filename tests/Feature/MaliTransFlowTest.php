@@ -77,7 +77,10 @@ class MaliTransFlowTest extends TestCase
         ]);
 
         $responseVente->assertStatus(201)
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.nom_passager', 'Moussa Diarra')
+            ->assertJsonPath('data.date_paiement', fn ($date) => is_string($date) && $date !== '')
+            ->assertJsonPath('data.code_qr_hash', fn ($code) => is_string($code) && str_starts_with($code, 'MALITRANS-'));
 
         $qrHash = $responseVente->json('data.code_qr_hash');
         $this->assertNotEmpty($qrHash);
