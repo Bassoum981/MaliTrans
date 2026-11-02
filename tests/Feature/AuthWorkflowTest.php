@@ -146,6 +146,24 @@ class AuthWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_la_session_admin_persiste_entre_les_pages_d_administration(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin.session@malitrans.ml',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+        ]);
+
+        $this->postJson('/login', [
+            'email' => $admin->email,
+            'password' => 'password123',
+        ])->assertOk();
+
+        $this->get(route('admin.dashboard'))->assertOk();
+        $this->get(route('admin.users'))->assertOk();
+        $this->assertAuthenticatedAs($admin);
+    }
+
     public function test_la_creation_depuis_la_session_web_ne_depend_pas_du_domaine_stateful_de_sanctum(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
