@@ -37,7 +37,7 @@
             :class="{ 'translate-x-0': sidebarOpen }"
         >
             <div class="flex items-center justify-between">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
+                <a href="{{ route('admin.dashboard', [], false) }}" class="flex items-center gap-3">
                     <span class="grid h-11 w-11 place-items-center rounded-2xl bg-cyan text-lg font-black text-ink shadow-lg shadow-cyan/20">MT</span>
                     <span>
                         <span class="block text-sm font-bold tracking-tight text-white">MaliTrans</span>
@@ -61,7 +61,7 @@
                     @endphp
                     @foreach ($adminLinks as $link)
                         <a
-                            href="{{ route($link['route']) }}"
+                            href="{{ route($link['route'], [], false) }}"
                             class="{{ request()->routeIs($link['route']) ? 'bg-cyan/10 text-cyan ring-1 ring-inset ring-cyan/20' : 'text-slate-400 hover:bg-white/[.04] hover:text-white' }} group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition"
                         >
                             <span class="{{ request()->routeIs($link['route']) ? 'bg-cyan text-ink' : 'bg-white/5 text-slate-500 group-hover:text-white' }} grid h-8 w-8 place-items-center rounded-lg text-base transition">{{ $link['icon'] }}</span>
@@ -79,7 +79,7 @@
                         <p class="text-xs text-slate-500">Administrateur</p>
                     </div>
                 </div>
-                <a href="{{ route('logout') }}" class="mt-4 flex items-center justify-between rounded-xl border border-line px-3 py-2 text-xs font-semibold text-slate-400 transition hover:border-red-400/40 hover:text-red-300">
+                <a href="{{ route('logout', [], false) }}" class="mt-4 flex items-center justify-between rounded-xl border border-line px-3 py-2 text-xs font-semibold text-slate-400 transition hover:border-red-400/40 hover:text-red-300">
                     Fermer la session <span>↗</span>
                 </a>
             </div>

@@ -110,10 +110,23 @@ class AuthWorkflowTest extends TestCase
         ]);
 
         $response->assertOk()
-            ->assertJsonPath('redirect', route('guichet.dashboard'));
+            ->assertJsonPath('redirect', route('guichet.dashboard', [], false));
 
         $this->assertAuthenticatedAs($guichetier);
         $this->get(route('guichet.dashboard'))->assertOk();
+    }
+
+    public function test_la_connexion_admin_retourne_une_redirection_relative(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->postJson('/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('redirect', route('admin.dashboard', [], false));
     }
 
     public function test_un_administrateur_connecte_par_session_peut_creer_un_compte_guichetier(): void
