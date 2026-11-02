@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 // Redirection de la racine vers la page de connexion
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->to(route('login', [], false));
 });
 
 // Route publique de connexion
@@ -36,8 +36,8 @@ Route::post('/login', function (Request $request) {
     $request->session()->regenerate();
 
     $redirect = $request->user()->role === 'admin'
-        ? route('admin.dashboard')
-        : route('guichet.dashboard');
+        ? route('admin.dashboard', [], false)
+        : route('guichet.dashboard', [], false);
 
     return response()->json([
         'success' => true,
@@ -50,7 +50,7 @@ Route::get('/logout', function (Request $request) {
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    return redirect()->route('login');
+    return redirect()->to(route('login', [], false));
 })->name('logout');
 
 // Routes d'administration (protégées par le front avec le token Sanctum)
